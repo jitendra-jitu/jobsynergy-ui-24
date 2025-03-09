@@ -1,4 +1,6 @@
+
 import React, { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { useProfile } from "@/contexts/ProfileContext";
 import { saveProfile, parseResumeData } from "@/services/api";
 import { Button } from "@/components/ui/button";
@@ -11,6 +13,7 @@ import { v4 as uuidv4 } from "uuid";
 import { toast } from "@/hooks/use-toast";
 
 const Profile = () => {
+  const navigate = useNavigate();
   const { profile, setProfile } = useProfile();
   const [isLoading, setIsLoading] = useState(false);
   const [isParsingResume, setIsParsingResume] = useState(false);
@@ -91,6 +94,8 @@ const Profile = () => {
     setIsLoading(true);
     try {
       saveProfile(profile);
+      // Navigate to the recommended jobs page after saving
+      navigate("/recommended-jobs");
     } catch (error) {
       console.error("Profile save failed:", error);
     } finally {
@@ -106,6 +111,10 @@ const Profile = () => {
       experience: [],
       education: [],
       careerGoals: "",
+    });
+    toast({
+      title: "Profile Cleared",
+      description: "All profile information has been cleared.",
     });
   };
 

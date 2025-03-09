@@ -1,6 +1,6 @@
 
-import React from "react";
-import { useQuery } from "@tanstack/react-query";
+import React, { useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchRecommendedJobs } from "@/services/api";
 import JobCard from "@/components/JobCard";
 import { AlertTriangle } from "lucide-react";
@@ -11,9 +11,17 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const RecommendedJobs = () => {
   const { profile, isProfileComplete } = useProfile();
+  const queryClient = useQueryClient();
+  
+  // Force refetch when component mounts or profile changes
+  useEffect(() => {
+    if (isProfileComplete) {
+      queryClient.invalidateQueries({ queryKey: ["recommendedJobs"] });
+    }
+  }, [profile.skills, isProfileComplete, queryClient]);
 
   const { data: jobs = [], isLoading, error } = useQuery({
-    queryKey: ["recommendedJobs", profile],
+    queryKey: ["recommendedJobs", profile.skills],
     queryFn: fetchRecommendedJobs,
     enabled: isProfileComplete,
   });
