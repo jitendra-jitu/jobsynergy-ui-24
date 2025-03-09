@@ -1,9 +1,8 @@
-
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchSampleJobs } from "@/services/api";
 import JobCard from "@/components/JobCard";
-import { Briefcase, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Job } from "@/types/job";
@@ -35,8 +34,7 @@ const AllJobs = () => {
   return (
     <div className="container mx-auto py-6 px-4">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2 flex items-center">
-          <Briefcase className="mr-2 h-6 w-6 text-primary" />
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">
           Available Jobs
         </h1>
       </div>

@@ -1,4 +1,3 @@
-
 import { Job, Profile } from "../types/job";
 import { toast } from "@/hooks/use-toast";
 
@@ -148,12 +147,50 @@ export function getProfile(): Profile | null {
   }
 }
 
-export function parseResumeData(file: File): Promise<void> {
-  // Since we're only using localStorage, we'll just show a toast
-  toast({
-    title: "Resume Upload",
-    description: "Resume parsing is not available in local mode.",
-    variant: "destructive",
-  });
-  return Promise.reject("Resume parsing not available in local mode");
+export async function parseResumeData(file: File): Promise<Profile> {
+  try {
+    const API_URL = "http://localhost:5000/upload-resume";
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch(API_URL, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to parse resume");
+    }
+
+    const data = await response.json();
+    
+    // Format the data to match our Profile structure
+    return {
+      fullName: data.full_name || "",
+      email: data.email || "",
+      skills: data.skills || [],
+      experience: Array.isArray(data.experience) 
+        ? data.experience.map((exp: any, index: number) => ({
+            id: index.toString(),
+            jobTitle: exp.job_title || "",
+            company: exp.company || "",
+            duration: exp.duration || "",
+            description: exp.description || ""
+          }))
+        : [],
+      education: Array.isArray(data.education)
+        ? data.education.map((edu: any, index: number) => ({
+            id: index.toString(),
+            degree: edu.degree || "",
+            institution: edu.institution || "",
+            year: edu.year || ""
+          }))
+        : [],
+      careerGoals: data.career_goals || "",
+    };
+  } catch (error) {
+    console.error("Error parsing resume:", error);
+    throw error;
+  }
 }

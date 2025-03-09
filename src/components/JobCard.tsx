@@ -1,9 +1,9 @@
-
 import React from "react";
 import { Job } from "@/types/job";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Building, Briefcase } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 interface JobCardProps {
   job: Job;
@@ -31,6 +31,13 @@ const JobCard: React.FC<JobCardProps> = ({ job, isRecommended = false }) => {
 
   // Get confidence score (from either property)
   const confidenceScore = job.confidence || job.confidenceScore || 0;
+
+  const handleApply = () => {
+    toast({
+      title: "Application Submitted",
+      description: "Your application has been successfully submitted!",
+    });
+  };
 
   return (
     <Card className="h-full flex flex-col">
@@ -96,7 +103,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, isRecommended = false }) => {
         )}
       </CardContent>
       <CardFooter className="pt-2">
-        <Button className="w-full">Apply Now</Button>
+        <Button className="w-full" onClick={handleApply}>Apply Now</Button>
       </CardFooter>
     </Card>
   );

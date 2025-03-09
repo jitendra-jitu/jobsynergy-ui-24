@@ -1,19 +1,21 @@
-
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useProfile } from "@/contexts/ProfileContext";
-import { saveProfile } from "@/services/api";
+import { saveProfile, parseResumeData } from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
-import { X, Plus, TrashIcon } from "lucide-react";
+import { X, Plus, Upload } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
+import { toast } from "@/hooks/use-toast";
 
 const Profile = () => {
   const { profile, setProfile } = useProfile();
   const [isLoading, setIsLoading] = useState(false);
+  const [isParsingResume, setIsParsingResume] = useState(false);
   const [skillInput, setSkillInput] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleAddSkill = () => {
     if (skillInput.trim() && !profile.skills.includes(skillInput.trim())) {
@@ -107,6 +109,38 @@ const Profile = () => {
     });
   };
 
+  const handleResumeUpload = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setIsParsingResume(true);
+      try {
+        const parsedData = await parseResumeData(file);
+        setProfile(parsedData);
+        toast({
+          title: "Resume Parsed Successfully",
+          description: "Your profile has been updated with information from your resume.",
+        });
+      } catch (error) {
+        toast({
+          title: "Error Parsing Resume",
+          description: "There was an error parsing your resume. Please try again or fill the form manually.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsParsingResume(false);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+      }
+    }
+  };
+
   return (
     <div className="container mx-auto py-4 px-4">
       <div className="max-w-2xl mx-auto">
@@ -120,6 +154,33 @@ const Profile = () => {
             Clear Profile
           </Button>
         </div>
+
+        <Card className="mb-4">
+          <CardContent className="pt-4">
+            <div className="flex flex-col items-center p-4 border-2 border-dashed rounded-lg">
+              <Upload className="h-8 w-8 text-gray-400 mb-2" />
+              <h3 className="text-lg font-medium mb-1">Upload Your Resume</h3>
+              <p className="text-sm text-gray-500 text-center mb-3">
+                Upload your PDF resume to automatically fill your profile information
+              </p>
+              <input
+                type="file"
+                accept=".pdf"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                className="hidden"
+              />
+              <Button 
+                onClick={handleResumeUpload}
+                disabled={isParsingResume}
+                variant="secondary"
+                size="sm"
+              >
+                {isParsingResume ? "Processing..." : "Upload Resume"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <Card>
