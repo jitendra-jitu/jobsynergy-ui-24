@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,13 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				job: {
+					primary: '#2563eb',
+					secondary: '#3b82f6',
+					accent: '#93c5fd',
+					light: '#dbeafe',
+					dark: '#1e40af'
 				}
 			},
 			borderRadius: {
@@ -89,7 +97,11 @@ export default {
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out'
-			}
+			},
+			backgroundImage: {
+				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+				'job-pattern': 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)'
+			},
 		}
 	},
 	plugins: [require("tailwindcss-animate")],
