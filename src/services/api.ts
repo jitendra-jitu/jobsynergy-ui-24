@@ -44,74 +44,10 @@ export async function fetchRecommendedJobs(): Promise<Job[]> {
   }
 }
 
-export async function uploadResume(file: File): Promise<Profile> {
+// Local storage only functions for profile
+export function saveProfile(profile: Profile): void {
   try {
-    const formData = new FormData();
-    // The Flask backend expects the file with key 'file', not 'resume'
-    formData.append("file", file);
-    
-    console.log("Uploading file:", file.name, "size:", file.size, "type:", file.type);
-    
-    const response = await fetch(`${API_BASE_URL}/upload-resume`, {
-      method: "POST",
-      body: formData,
-      // Don't set Content-Type header here, the browser will set it correctly with boundary for multipart/form-data
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error("Server error response:", errorData);
-      throw new Error(errorData.error || "Failed to upload resume");
-    }
-    
-    const data = await response.json();
-    console.log("Resume upload response:", data);
-    
-    // Map API response to our Profile structure
-    return {
-      fullName: data.full_name || "",
-      email: data.email || "",
-      skills: data.skills || [],
-      experience: (data.experience || []).map((exp: any) => ({
-        id: crypto.randomUUID(),
-        jobTitle: exp.job_title || "",
-        company: exp.company || "",
-        duration: exp.duration || "",
-        description: exp.description || ""
-      })),
-      education: (data.education || []).map((edu: any) => ({
-        id: crypto.randomUUID(),
-        degree: edu.degree || "",
-        institution: edu.institution || "",
-        year: edu.year || ""
-      })),
-      careerGoals: data.career_goals || ""
-    };
-  } catch (error) {
-    console.error("Resume upload failed:", error);
-    toast({
-      title: "Error",
-      description: "Failed to upload resume. Please try again.",
-      variant: "destructive",
-    });
-    throw error;
-  }
-}
-
-export async function saveProfile(profile: Profile): Promise<void> {
-  try {
-    const response = await fetch(`${API_BASE_URL}/save-profile`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(profile),
-    });
-    
-    if (!response.ok) {
-      throw new Error("Failed to save profile");
-    }
-    
+    localStorage.setItem("userProfile", JSON.stringify(profile));
     toast({
       title: "Success",
       description: "Profile saved successfully!",
@@ -123,6 +59,15 @@ export async function saveProfile(profile: Profile): Promise<void> {
       description: "Failed to save profile. Please try again.",
       variant: "destructive",
     });
-    throw error;
   }
+}
+
+export function parseResumeData(file: File): Promise<void> {
+  // Since we're only using localStorage, we'll just show a toast
+  toast({
+    title: "Resume Upload",
+    description: "Resume parsing is not available in local mode.",
+    variant: "destructive",
+  });
+  return Promise.reject("Resume parsing not available in local mode");
 }

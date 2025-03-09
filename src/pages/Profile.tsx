@@ -1,14 +1,14 @@
 
 import React, { useState } from "react";
 import { useProfile } from "@/contexts/ProfileContext";
-import { saveProfile, uploadResume } from "@/services/api";
+import { saveProfile } from "@/services/api";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { X, Plus, Upload, User, Briefcase, GraduationCap, Target } from "lucide-react";
+import { X, Plus, User, Briefcase, GraduationCap, Target } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 
 const Profile = () => {
@@ -86,34 +86,11 @@ const Profile = () => {
     }));
   };
 
-  const handleResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setIsLoading(true);
-    try {
-      const profileData = await uploadResume(file);
-      setProfile(profileData);
-      toast({
-        title: "Resume Uploaded",
-        description: "Your profile has been updated with resume data",
-      });
-    } catch (error) {
-      console.error("Resume upload failed:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await saveProfile(profile);
-      toast({
-        title: "Profile Saved",
-        description: "Your profile has been saved successfully",
-      });
+      saveProfile(profile);
     } catch (error) {
       console.error("Profile save failed:", error);
     } finally {
@@ -123,30 +100,17 @@ const Profile = () => {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="h-12 w-12 rounded-full bg-job-primary flex items-center justify-center text-white">
-            <User className="h-6 w-6" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Your Profile</h1>
-            <p className="text-gray-600">
-              Complete your profile to get personalized job recommendations
-            </p>
-          </div>
-        </div>
+      <div className="max-w-3xl mx-auto">
+        <h1 className="text-2xl font-bold text-gray-900 mb-6">Your Profile</h1>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Info */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5 text-job-primary" />
-                Basic Information
-              </CardTitle>
+              <CardTitle>Basic Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="fullName">Full Name</Label>
                   <Input
@@ -173,13 +137,13 @@ const Profile = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="skills">Skills (comma-separated)</Label>
+                <Label htmlFor="skills">Skills</Label>
                 <div className="flex gap-2">
                   <Input
                     id="skills"
                     value={skillInput}
                     onChange={(e) => setSkillInput(e.target.value)}
-                    placeholder="Add a skill (e.g. JavaScript, Python, React)"
+                    placeholder="Add a skill"
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         e.preventDefault();
@@ -221,7 +185,7 @@ const Profile = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {profile.experience.map((exp, index) => (
+              {profile.experience.map((exp) => (
                 <div key={exp.id} className="p-4 border rounded-md relative">
                   <button
                     type="button"
@@ -230,51 +194,36 @@ const Profile = () => {
                   >
                     <X className="h-4 w-4" />
                   </button>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor={`jobTitle-${index}`}>Job Title</Label>
+                      <Label>Job Title</Label>
                       <Input
-                        id={`jobTitle-${index}`}
                         value={exp.jobTitle}
                         onChange={(e) =>
                           handleExperienceChange(exp.id, "jobTitle", e.target.value)
                         }
-                        placeholder="Software Engineer"
+                        placeholder="Job Title"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor={`company-${index}`}>Company</Label>
+                      <Label>Company</Label>
                       <Input
-                        id={`company-${index}`}
                         value={exp.company}
                         onChange={(e) =>
                           handleExperienceChange(exp.id, "company", e.target.value)
                         }
-                        placeholder="Tech Company Inc."
+                        placeholder="Company"
                       />
                     </div>
                   </div>
-                  <div className="mt-4 space-y-2">
-                    <Label htmlFor={`duration-${index}`}>Duration</Label>
+                  <div className="mt-4">
+                    <Label>Duration</Label>
                     <Input
-                      id={`duration-${index}`}
                       value={exp.duration}
                       onChange={(e) =>
                         handleExperienceChange(exp.id, "duration", e.target.value)
                       }
-                      placeholder="Jan 2020 - Present"
-                    />
-                  </div>
-                  <div className="mt-4 space-y-2">
-                    <Label htmlFor={`description-${index}`}>Description</Label>
-                    <Textarea
-                      id={`description-${index}`}
-                      value={exp.description || ""}
-                      onChange={(e) =>
-                        handleExperienceChange(exp.id, "description", e.target.value)
-                      }
-                      placeholder="Describe your responsibilities and achievements"
-                      rows={3}
+                      placeholder="Duration"
                     />
                   </div>
                 </div>
@@ -300,7 +249,7 @@ const Profile = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {profile.education.map((edu, index) => (
+              {profile.education.map((edu) => (
                 <div key={edu.id} className="p-4 border rounded-md relative">
                   <button
                     type="button"
@@ -309,22 +258,20 @@ const Profile = () => {
                   >
                     <X className="h-4 w-4" />
                   </button>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor={`degree-${index}`}>Degree</Label>
+                      <Label>Degree</Label>
                       <Input
-                        id={`degree-${index}`}
                         value={edu.degree}
                         onChange={(e) =>
                           handleEducationChange(edu.id, "degree", e.target.value)
                         }
-                        placeholder="Bachelor of Science in Computer Science"
+                        placeholder="Degree"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor={`institution-${index}`}>Institution</Label>
+                      <Label>Institution</Label>
                       <Input
-                        id={`institution-${index}`}
                         value={edu.institution}
                         onChange={(e) =>
                           handleEducationChange(
@@ -333,19 +280,18 @@ const Profile = () => {
                             e.target.value
                           )
                         }
-                        placeholder="University of Technology"
+                        placeholder="Institution"
                       />
                     </div>
                   </div>
-                  <div className="mt-4 space-y-2">
-                    <Label htmlFor={`year-${index}`}>Year</Label>
+                  <div className="mt-4">
+                    <Label>Year</Label>
                     <Input
-                      id={`year-${index}`}
                       value={edu.year}
                       onChange={(e) =>
                         handleEducationChange(edu.id, "year", e.target.value)
                       }
-                      placeholder="2015 - 2019"
+                      placeholder="Year"
                     />
                   </div>
                 </div>
@@ -371,61 +317,22 @@ const Profile = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
-                <Label htmlFor="careerGoals">
-                  What are your career goals and aspirations?
-                </Label>
-                <Textarea
-                  id="careerGoals"
-                  value={profile.careerGoals}
-                  onChange={(e) =>
-                    setProfile((prev) => ({
-                      ...prev,
-                      careerGoals: e.target.value,
-                    }))
-                  }
-                  placeholder="Describe your career goals and what you're looking for in your next role"
-                  rows={4}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Resume Upload */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Upload className="h-5 w-5 text-job-primary" />
-                Resume Upload
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="border-2 border-dashed rounded-lg p-6 text-center">
-                <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
-                <p className="text-sm text-gray-600 mb-3">
-                  Upload your resume to automatically fill your profile
-                </p>
-                <input
-                  type="file"
-                  id="resume"
-                  className="hidden"
-                  accept=".pdf,.doc,.docx"
-                  onChange={handleResumeUpload}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => document.getElementById("resume")?.click()}
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Uploading..." : "Select Resume"}
-                </Button>
-              </div>
+              <Textarea
+                value={profile.careerGoals}
+                onChange={(e) =>
+                  setProfile((prev) => ({
+                    ...prev,
+                    careerGoals: e.target.value,
+                  }))
+                }
+                placeholder="Describe your career goals"
+                rows={3}
+              />
             </CardContent>
           </Card>
 
           <div className="flex justify-end">
-            <Button type="submit" size="lg" disabled={isLoading}>
+            <Button type="submit" disabled={isLoading}>
               {isLoading ? "Saving..." : "Save Profile"}
             </Button>
           </div>
