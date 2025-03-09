@@ -1,9 +1,8 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { Briefcase, ThumbsUp } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useProfile } from "@/contexts/ProfileContext";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const { isProfileComplete } = useProfile();
@@ -22,26 +21,14 @@ const Index = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
               size="lg" 
-              className="text-lg h-14 px-8 gap-2"
-              asChild
-            >
-              <Link to="/all-jobs">
-                <Briefcase className="h-5 w-5" />
-                Browse All Jobs
-              </Link>
-            </Button>
-            
-            <Button 
-              size="lg" 
               variant={isProfileComplete ? "default" : "outline"}
               className={`text-lg h-14 px-8 gap-2 ${
                 !isProfileComplete ? "border-dashed" : ""
               }`}
               asChild
             >
-              <Link to={isProfileComplete ? "/recommended-jobs" : "/profile"}>
-                <ThumbsUp className="h-5 w-5" />
-                {isProfileComplete ? "View Recommended Jobs" : "Complete Profile First"}
+              <Link to={"/profile"}>
+                Complete Profile First
               </Link>
             </Button>
           </div>

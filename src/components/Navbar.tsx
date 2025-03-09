@@ -10,7 +10,6 @@ const Navbar = () => {
   const { isProfileComplete } = useProfile();
 
   const navLinks = [
-    { path: "/", label: "Home" },
     { path: "/all-jobs", label: "All Jobs" },
     { path: "/recommended-jobs", label: "Recommended Jobs" },
   ];
