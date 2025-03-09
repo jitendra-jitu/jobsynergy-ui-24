@@ -81,7 +81,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, isRecommended = false }) => {
           <div className="mt-4">
             <div className="flex justify-between text-xs mb-1">
               <span>Prediction Score</span>
-              <span className="font-semibold">{confidenceScore.toFixed(2)}</span>
+              <span className="font-semibold">{confidenceScore.toFixed(4)}</span>
             </div>
             <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
               <div 

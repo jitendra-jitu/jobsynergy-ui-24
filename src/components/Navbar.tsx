@@ -21,7 +21,7 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <Briefcase className="h-6 w-6 text-job-primary" />
-            <span className="font-bold text-xl text-job-primary">JobSync</span>
+            <span className="font-bold text-xl text-job-primary">Job Recommendation System using CNN</span>
           </Link>
           
           {/* Navigation Links */}

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
-import { X, Plus } from "lucide-react";
+import { X, Plus, TrashIcon } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 
 const Profile = () => {
@@ -96,17 +96,36 @@ const Profile = () => {
     }
   };
 
-  return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-xl font-bold text-gray-900 mb-4">Your Profile</h1>
+  const handleClearProfile = () => {
+    setProfile({
+      fullName: "",
+      email: "",
+      skills: [],
+      experience: [],
+      education: [],
+      careerGoals: "",
+    });
+  };
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Basic Info */}
+  return (
+    <div className="container mx-auto py-4 px-4">
+      <div className="max-w-2xl mx-auto">
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-xl font-bold text-gray-900">Your Profile</h1>
+          <Button 
+            variant="destructive" 
+            size="sm" 
+            onClick={handleClearProfile}
+          >
+            Clear Profile
+          </Button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
           <Card>
-            <CardContent className="pt-6 space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
+            <CardContent className="pt-4 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
                   <Label htmlFor="fullName">Full Name</Label>
                   <Input
                     id="fullName"
@@ -117,7 +136,7 @@ const Profile = () => {
                     placeholder="John Doe"
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1">
                   <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
@@ -131,7 +150,7 @@ const Profile = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <Label htmlFor="skills">Skills</Label>
                 <div className="flex gap-2">
                   <Input
@@ -169,7 +188,7 @@ const Profile = () => {
                 </div>
               </div>
               
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <Label>Experience</Label>
                 {profile.experience.map((exp) => (
                   <div key={exp.id} className="p-3 border rounded-md relative">
@@ -213,7 +232,7 @@ const Profile = () => {
                 </Button>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <Label>Education</Label>
                 {profile.education.map((edu) => (
                   <div key={edu.id} className="p-3 border rounded-md relative">
@@ -257,7 +276,7 @@ const Profile = () => {
                 </Button>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <Label htmlFor="careerGoals">Career Goals</Label>
                 <Textarea
                   id="careerGoals"
