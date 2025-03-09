@@ -22,7 +22,7 @@ const RecommendedJobs = () => {
 
   const { data: jobs = [], isLoading, error } = useQuery({
     queryKey: ["recommendedJobs", profile.skills],
-    queryFn: fetchRecommendedJobs,
+    queryFn: () => fetchRecommendedJobs(profile.skills),
     enabled: isProfileComplete,
   });
 

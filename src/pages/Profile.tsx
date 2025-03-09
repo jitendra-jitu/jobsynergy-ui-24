@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProfile } from "@/contexts/ProfileContext";
@@ -14,7 +13,7 @@ import { toast } from "@/hooks/use-toast";
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { profile, setProfile } = useProfile();
+  const { profile, setProfile, refreshRecommendations } = useProfile();
   const [isLoading, setIsLoading] = useState(false);
   const [isParsingResume, setIsParsingResume] = useState(false);
   const [skillInput, setSkillInput] = useState("");
@@ -94,10 +93,19 @@ const Profile = () => {
     setIsLoading(true);
     try {
       saveProfile(profile);
-      // Navigate to the recommended jobs page after saving
+      await refreshRecommendations();
       navigate("/recommended-jobs");
+      toast({
+        title: "Profile Saved",
+        description: "Your profile has been updated and job recommendations refreshed.",
+      });
     } catch (error) {
       console.error("Profile save failed:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save profile. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }

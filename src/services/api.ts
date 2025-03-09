@@ -92,11 +92,10 @@ export async function fetchSampleJobs(): Promise<Job[]> {
   }
 }
 
-export async function fetchRecommendedJobs(): Promise<Job[]> {
+export async function fetchRecommendedJobs(skills?: string[]): Promise<Job[]> {
   try {
-    // Instead of calling the API, use the sample data directly
-    // This simulates what we would get from the /predict endpoint
     console.log("Using sample recommended jobs data instead of API call");
+    console.log("Skills to recommend jobs for:", skills);
     
     // Add IDs for React keys
     return SAMPLE_JOBS.map((job, index) => ({
@@ -110,6 +109,37 @@ export async function fetchRecommendedJobs(): Promise<Job[]> {
     toast({
       title: "Error",
       description: "Failed to fetch recommended jobs. Please try again.",
+      variant: "destructive",
+    });
+    return [];
+  }
+}
+
+export async function requestRecommendedJobs(jobTitle: string, skills: string[]): Promise<Job[]> {
+  try {
+    console.log("Requesting recommended jobs with:", { jobTitle, skills });
+    
+    // Prepare the request payload
+    const payload = {
+      job_title: jobTitle,
+      key_skills: skills.join("|")
+    };
+    
+    // In a real implementation, this would make an actual API call
+    // For now, we'll simulate by using the sample data
+    console.log("POST payload:", payload);
+    
+    // Return the sample data as if it was from the API
+    return SAMPLE_JOBS.map((job, index) => ({
+      ...job,
+      id: index.toString(),
+      confidenceScore: job.confidence
+    }));
+  } catch (error) {
+    console.error("Error requesting recommended jobs:", error);
+    toast({
+      title: "Error",
+      description: "Failed to get job recommendations. Please try again.",
       variant: "destructive",
     });
     return [];

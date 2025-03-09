@@ -2,11 +2,14 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Profile } from "../types/job";
 import { v4 as uuidv4 } from "uuid";
+import { requestRecommendedJobs } from "@/services/api";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ProfileContextType {
   profile: Profile;
   setProfile: React.Dispatch<React.SetStateAction<Profile>>;
   isProfileComplete: boolean;
+  refreshRecommendations: () => Promise<void>;
 }
 
 const defaultProfile: Profile = {
@@ -25,6 +28,7 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     const savedProfile = localStorage.getItem("userProfile");
     return savedProfile ? JSON.parse(savedProfile) : defaultProfile;
   });
+  const queryClient = useQueryClient();
 
   const isProfileComplete = Boolean(
     profile.fullName && 
@@ -32,12 +36,36 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     profile.skills.length > 0
   );
 
+  const refreshRecommendations = async () => {
+    if (!isProfileComplete) return;
+    
+    try {
+      // Get the most recent job title from experience if available
+      const mostRecentJob = profile.experience.length > 0 
+        ? profile.experience[0].jobTitle 
+        : "Entry Level";
+      
+      // Request job recommendations based on profile
+      await requestRecommendedJobs(mostRecentJob, profile.skills);
+      
+      // Invalidate the query to force a refetch
+      queryClient.invalidateQueries({ queryKey: ["recommendedJobs"] });
+    } catch (error) {
+      console.error("Failed to refresh recommendations:", error);
+    }
+  };
+
   useEffect(() => {
     localStorage.setItem("userProfile", JSON.stringify(profile));
   }, [profile]);
 
   return (
-    <ProfileContext.Provider value={{ profile, setProfile, isProfileComplete }}>
+    <ProfileContext.Provider value={{ 
+      profile, 
+      setProfile, 
+      isProfileComplete,
+      refreshRecommendations 
+    }}>
       {children}
     </ProfileContext.Provider>
   );
