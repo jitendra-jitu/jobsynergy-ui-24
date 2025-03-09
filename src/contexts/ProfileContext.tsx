@@ -43,26 +43,25 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
       console.log("Refreshing recommendations with profile:", profile);
       
       // Get the most recent job title from experience or use a default
-      const mostRecentJob = profile.experience.length > 0 
+      const mostRecentJob = profile.experience && profile.experience.length > 0 
         ? profile.experience[0].jobTitle 
-        : "software developer";
-      
-      // Get the user's skills from their profile
-      const userSkills = profile.skills;
+        : "Software Developer"; // Fallback job title
       
       console.log("Using job title:", mostRecentJob);
-      console.log("Using skills:", userSkills);
+      console.log("Using skills:", profile.skills);
       
-      // Request job recommendations based on the current profile data
-      await requestRecommendedJobs(mostRecentJob, userSkills);
+      // Make the API request with the user's job title and skills
+      await requestRecommendedJobs(mostRecentJob, profile.skills);
       
       // Invalidate the query to force a refetch
       queryClient.invalidateQueries({ queryKey: ["recommendedJobs"] });
     } catch (error) {
       console.error("Failed to refresh recommendations:", error);
+      throw error; // Propagate the error for handling in the component
     }
   };
 
+  // Save profile to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem("userProfile", JSON.stringify(profile));
   }, [profile]);

@@ -1,35 +1,53 @@
 
-import React, { useEffect } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import React, { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { fetchRecommendedJobs } from "@/services/api";
 import JobCard from "@/components/JobCard";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useProfile } from "@/contexts/ProfileContext";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "@/hooks/use-toast";
 
 const RecommendedJobs = () => {
   const { profile, isProfileComplete, refreshRecommendations } = useProfile();
-  const queryClient = useQueryClient();
+  const [isRefreshing, setIsRefreshing] = useState(false);
   
-  // Force refetch when component mounts or profile changes
+  // Function to manually refresh job recommendations
+  const handleRefresh = async () => {
+    try {
+      setIsRefreshing(true);
+      await refreshRecommendations();
+      toast({
+        title: "Success",
+        description: "Job recommendations refreshed",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to refresh job recommendations",
+        variant: "destructive",
+      });
+      console.error("Error refreshing recommendations:", error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  // Fetch job recommendations when component mounts
   useEffect(() => {
-    const refreshJobs = async () => {
-      if (isProfileComplete) {
-        console.log("Component mounted or profile changed - refreshing recommendations");
-        await refreshRecommendations();
-      }
-    };
-    
-    refreshJobs();
-  }, [profile.skills, isProfileComplete, queryClient, refreshRecommendations]);
+    if (isProfileComplete) {
+      console.log("Component mounted - fetching initial recommendations");
+      refreshRecommendations();
+    }
+  }, [isProfileComplete, refreshRecommendations]);
 
   const { data: jobs = [], isLoading, error } = useQuery({
     queryKey: ["recommendedJobs", profile.skills],
     queryFn: () => fetchRecommendedJobs(profile.skills),
     enabled: isProfileComplete,
-    staleTime: 0, // Always consider data stale to force refetch
+    staleTime: 60000, // Consider data fresh for 1 minute
   });
 
   if (!isProfileComplete) {
@@ -40,7 +58,7 @@ const RecommendedJobs = () => {
           Complete Your Profile First
         </h1>
         <p className="text-gray-600 mb-6 max-w-md mx-auto">
-          We need more information to provide job recommendations.
+          We need more information about your skills and experience to provide personalized job recommendations.
         </p>
         <Button asChild>
           <Link to="/profile">Go to Profile</Link>
@@ -57,11 +75,26 @@ const RecommendedJobs = () => {
             Recommended Jobs
           </h1>
           <p className="text-gray-600">
-            Based on your skills and profile
+            Personalized recommendations based on your profile
           </p>
         </div>
-        <Button onClick={refreshRecommendations} variant="outline" size="sm">
-          Refresh Recommendations
+        <Button 
+          onClick={handleRefresh} 
+          variant="outline" 
+          size="sm"
+          disabled={isRefreshing}
+        >
+          {isRefreshing ? (
+            <>
+              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+              Refreshing...
+            </>
+          ) : (
+            <>
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Refresh Recommendations
+            </>
+          )}
         </Button>
       </div>
 
@@ -78,15 +111,32 @@ const RecommendedJobs = () => {
         </div>
       ) : error ? (
         <div className="text-center py-8">
-          <p className="text-red-500">Error loading recommended jobs.</p>
+          <p className="text-red-500">Error loading job recommendations.</p>
+          <Button 
+            onClick={handleRefresh} 
+            variant="outline" 
+            className="mt-4"
+          >
+            Try Again
+          </Button>
         </div>
       ) : jobs.length === 0 ? (
         <div className="text-center py-8">
-          <p className="text-gray-500">No recommended jobs found. Update your profile with more skills.</p>
+          <p className="text-gray-500 mb-4">No recommended jobs found for your profile.</p>
+          <p className="text-gray-500 mb-6">Try adding more skills to your profile or refreshing recommendations.</p>
+          <div className="flex justify-center gap-4">
+            <Button asChild variant="outline">
+              <Link to="/profile">Update Profile</Link>
+            </Button>
+            <Button onClick={handleRefresh}>
+              Refresh Recommendations
+            </Button>
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {jobs.sort((a, b) => (b.confidence || b.confidenceScore || 0) - (a.confidence || a.confidenceScore || 0))
+          {jobs
+            .sort((a, b) => (b.confidence || b.confidenceScore || 0) - (a.confidence || a.confidenceScore || 0))
             .map((job) => (
               <JobCard key={job.id} job={job} isRecommended={true} />
             ))}

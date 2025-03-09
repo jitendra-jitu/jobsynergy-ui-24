@@ -99,14 +99,23 @@ export async function fetchRecommendedJobs(skills?: string[]): Promise<Job[]> {
   try {
     console.log("Fetching recommended jobs with skills:", skills);
     
-    // For now, we'll use the sample data since the backend may not be available
-    // In a real implementation, we would fetch from the API endpoint
+    // Attempt to retrieve recommended jobs from cache
+    const cachedJobs = localStorage.getItem("recommendedJobs");
+    if (cachedJobs) {
+      const jobs = JSON.parse(cachedJobs);
+      console.log("Using cached recommended jobs:", jobs);
+      return jobs.map((job: any, index: number) => ({
+        ...job,
+        id: job.id || index.toString(),
+        confidenceScore: job.confidence || job.confidenceScore || 0
+      }));
+    }
     
-    // Add IDs for React keys
+    // If no cached jobs, return sample data
+    console.log("No cached recommended jobs found, using sample data");
     return SAMPLE_JOBS.map((job, index) => ({
       ...job,
       id: index.toString(),
-      // Make sure confidence is available at the top level
       confidenceScore: job.confidence
     }));
   } catch (error) {
@@ -122,14 +131,20 @@ export async function fetchRecommendedJobs(skills?: string[]): Promise<Job[]> {
 
 export async function requestRecommendedJobs(jobTitle: string, skills: string[]): Promise<Job[]> {
   try {
-    console.log("Requesting recommended jobs with:", { jobTitle, skills });
+    if (!jobTitle || !skills || skills.length === 0) {
+      throw new Error("Job title and skills are required for recommendations");
+    }
+    
+    // Format skills as a pipe-separated string
+    const skillsString = skills.join("|");
     
     // Prepare the request payload with the correct format
     const payload = {
       job_title: jobTitle,
-      key_skills: skills.join("|")
+      key_skills: skillsString
     };
     
+    console.log("POST request to prediction endpoint:", PREDICTION_ENDPOINT);
     console.log("POST payload:", payload);
     
     // Try to make an actual API call to the prediction endpoint
@@ -145,28 +160,37 @@ export async function requestRecommendedJobs(jobTitle: string, skills: string[])
       
       if (!response.ok) {
         console.error("Error response from prediction API:", response.status);
-        throw new Error("Failed to get job recommendations");
+        throw new Error(`Failed to get job recommendations: ${response.status}`);
       }
       
       const data = await response.json();
       console.log("Received prediction data:", data);
       
       // Format the response data to match our Job structure
-      return Array.isArray(data) ? data.map((job, index) => ({
+      const formattedJobs = Array.isArray(data) ? data.map((job, index) => ({
         ...job,
         id: index.toString(),
         confidenceScore: job.confidence || 0
       })) : [];
       
+      // Cache the results
+      localStorage.setItem("recommendedJobs", JSON.stringify(formattedJobs));
+      
+      return formattedJobs;
     } catch (apiError) {
       console.error("API call failed, using sample data instead:", apiError);
       
       // If the API call fails, fall back to the sample data
-      return SAMPLE_JOBS.map((job, index) => ({
+      const fallbackData = SAMPLE_JOBS.map((job, index) => ({
         ...job,
         id: index.toString(),
         confidenceScore: job.confidence
       }));
+      
+      // Cache the fallback data
+      localStorage.setItem("recommendedJobs", JSON.stringify(fallbackData));
+      
+      return fallbackData;
     }
   } catch (error) {
     console.error("Error requesting recommended jobs:", error);
