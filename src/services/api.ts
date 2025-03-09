@@ -4,6 +4,75 @@ import { toast } from "@/hooks/use-toast";
 
 const API_BASE_URL = "http://localhost:5000";
 
+// Sample data to use when API is not available
+const SAMPLE_JOBS = [
+  {
+    "Job Title": "React Frontend Developer",
+    "Key Skills": "React| Redux| JavaScript",
+    "confidence": 1.0,
+    "details": {
+      "Company": "InnovateTech",
+      "Description": "Develop interactive and responsive UIs using React and Redux.",
+      "Industry": "IT-Software, Software Services",
+      "Job Experience Required": "3 - 6 yrs",
+      "Job Salary": "7.5 LPA",
+      "confidence": 1.0
+    }
+  },
+  {
+    "Job Title": "Vue.js Developer",
+    "Key Skills": "Vue.js| JavaScript| UI Development",
+    "confidence": 0.5987082337374124,
+    "details": {
+      "Company": "Frontend Masters",
+      "Description": "Build modern web applications using Vue.js and TypeScript.",
+      "Industry": "Web Development",
+      "Job Experience Required": "3 - 6 yrs",
+      "Job Salary": "7.1 LPA",
+      "confidence": 0.5987082337374124
+    }
+  },
+  {
+    "Job Title": "Frontend Developer",
+    "Key Skills": "React.js| JavaScript| UI Development",
+    "confidence": 0.5932752021550755,
+    "details": {
+      "Company": "Web Creators Inc.",
+      "Description": "Design and develop responsive UI components with React.js.",
+      "Industry": "IT-Software, Software Services",
+      "Job Experience Required": "3 - 6 yrs",
+      "Job Salary": "5.8 LPA",
+      "confidence": 0.5932752021550755
+    }
+  },
+  {
+    "Job Title": "Java Backend Developer",
+    "Key Skills": "Java| Spring Boot| Microservices",
+    "confidence": 0.5226588978102378,
+    "details": {
+      "Company": "InnovateTech",
+      "Description": "Develop and maintain backend services using Java and Spring Boot.",
+      "Industry": "IT-Software, Software Services",
+      "Job Experience Required": "2 - 5 yrs",
+      "Job Salary": "6.2 LPA",
+      "confidence": 0.5226588978102378
+    }
+  },
+  {
+    "Job Title": "React Developer",
+    "Key Skills": "React| Next.js| Tailwind CSS",
+    "confidence": 0.3571321286549576,
+    "details": {
+      "Company": "Frontend Gurus",
+      "Description": "Develop fast and interactive web applications using React and Next.js.",
+      "Industry": "Web Development",
+      "Job Experience Required": "3 - 5 yrs",
+      "Job Salary": "6.7 LPA",
+      "confidence": 0.3571321286549576
+    }
+  }
+];
+
 export async function fetchSampleJobs(): Promise<Job[]> {
   try {
     const response = await fetch(`${API_BASE_URL}/sample-jobs`);
@@ -26,17 +95,15 @@ export async function fetchSampleJobs(): Promise<Job[]> {
 
 export async function fetchRecommendedJobs(): Promise<Job[]> {
   try {
-    const response = await fetch(`${API_BASE_URL}/predict`);
+    // Instead of calling the API, use the sample data directly
+    // This simulates what we would get from the /predict endpoint
+    console.log("Using sample recommended jobs data instead of API call");
     
-    if (!response.ok) {
-      throw new Error("Failed to fetch recommended jobs");
-    }
-    
-    // Assign IDs to each job for React keys
-    const jobs = await response.json();
-    return jobs.map((job: Job, index: number) => ({
+    // Add IDs for React keys
+    return SAMPLE_JOBS.map((job, index) => ({
       ...job,
       id: index.toString(),
+      // Make sure confidence is available at the top level
       confidenceScore: job.confidence
     }));
   } catch (error) {

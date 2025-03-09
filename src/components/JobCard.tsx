@@ -12,24 +12,24 @@ interface JobCardProps {
 
 const JobCard: React.FC<JobCardProps> = ({ job, isRecommended = false }) => {
   // Format display values from job object based on structure
-  const title = job["Job Title"] || (job.details && "Job Title" in job ? job["Job Title"] : "");
+  const title = job["Job Title"] || "";
   const company = 
+    job.details?.Company || 
     job["Company"] || 
-    (job.details?.Company) || 
-    job["Industry"] || 
     job.details?.Industry || 
+    job["Industry"] || 
     "";
   
-  const salary = job["Job Salary"] || job.details?.["Job Salary"] || "";
-  const experience = job["Job Experience Required"] || job.details?.["Job Experience Required"] || "";
-  const description = job["Description"] || job.details?.Description || "";
+  const salary = job.details?.["Job Salary"] || job["Job Salary"] || "";
+  const experience = job.details?.["Job Experience Required"] || job["Job Experience Required"] || "";
+  const description = job.details?.Description || job["Description"] || "";
   
   // Parse skills
   const skills = job["Key Skills"] ? 
     job["Key Skills"].split('|').map(s => s.trim()) : 
     [];
 
-  // Get confidence score
+  // Get confidence score (from either property)
   const confidenceScore = job.confidence || job.confidenceScore || 0;
 
   return (
@@ -52,7 +52,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, isRecommended = false }) => {
             )}
           </div>
           {salary && (
-            <div className="px-3 py-1 rounded-md bg-job-light text-job-primary text-sm font-medium">
+            <div className="px-3 py-1 rounded-md bg-blue-50 text-blue-700 text-sm font-medium">
               {salary}
             </div>
           )}
