@@ -49,8 +49,8 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
       console.log("Using job title:", mostRecentJob);
       console.log("Using skills:", profile.skills);
       
-      // Format skills as comma-separated string for the API
-      const skillsString = profile.skills.join(",");
+      // Format skills as pipe-separated string for the API
+      const skillsString = profile.skills.join("|");
       
       // Make the API request with the user's job title and skills
       await requestRecommendedJobs(mostRecentJob, skillsString);
