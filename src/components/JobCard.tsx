@@ -80,8 +80,8 @@ const JobCard: React.FC<JobCardProps> = ({ job, isRecommended = false }) => {
         {isRecommended && confidenceScore > 0 && (
           <div className="mt-4">
             <div className="flex justify-between text-xs mb-1">
-              <span>Match</span>
-              <span className="font-semibold">{Math.round(confidenceScore * 100)}%</span>
+              <span>Prediction Score</span>
+              <span className="font-semibold">{confidenceScore.toFixed(2)}</span>
             </div>
             <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
               <div 
