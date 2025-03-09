@@ -3,7 +3,7 @@ import React from "react";
 import { Job } from "@/types/job";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { ExternalLink, MapPin, Building, Calendar } from "lucide-react";
+import { Building, Briefcase } from "lucide-react";
 
 interface JobCardProps {
   job: Job;
@@ -11,52 +11,57 @@ interface JobCardProps {
 }
 
 const JobCard: React.FC<JobCardProps> = ({ job, isRecommended = false }) => {
+  // Format display values from job object
+  const title = job.title || job["Job Title"] || "";
+  const company = job.company || job["Company"] || job["Industry"] || "";
+  const salary = job.salary || job["Job Salary"] || "";
+  const experience = job.experience || job["Job Experience Required"] || "";
+  const description = job.description || job["Description"] || "";
+  
+  // Parse skills
+  const skills = job.skills || 
+    (job["Key Skills"] ? job["Key Skills"].split('|').map(s => s.trim()) : []);
+
   return (
     <Card className="job-card h-full flex flex-col">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">{job.title}</h3>
-            {job.company && (
+            <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+            {company && (
               <div className="flex items-center mt-1 text-sm text-gray-600">
                 <Building className="h-4 w-4 mr-1" />
-                <span>{job.company}</span>
+                <span>{company}</span>
               </div>
             )}
-            {job.location && (
+            {experience && (
               <div className="flex items-center mt-1 text-sm text-gray-600">
-                <MapPin className="h-4 w-4 mr-1" />
-                <span>{job.location}</span>
-              </div>
-            )}
-            {job.postDate && (
-              <div className="flex items-center mt-1 text-sm text-gray-600">
-                <Calendar className="h-4 w-4 mr-1" />
-                <span>{job.postDate}</span>
+                <Briefcase className="h-4 w-4 mr-1" />
+                <span>{experience}</span>
               </div>
             )}
           </div>
-          {job.salary && (
+          {salary && (
             <div className="px-3 py-1 rounded-md bg-job-light text-job-primary text-sm font-medium">
-              {job.salary}
+              {salary}
             </div>
           )}
         </div>
       </CardHeader>
       <CardContent className="flex-grow">
-        {job.description && (
-          <p className="text-sm text-gray-600 line-clamp-3 mb-3">{job.description}</p>
+        {description && (
+          <p className="text-sm text-gray-600 line-clamp-3 mb-3">{description}</p>
         )}
-        {job.skills && job.skills.length > 0 && (
+        {skills && skills.length > 0 && (
           <div className="flex flex-wrap mt-2">
-            {job.skills.slice(0, 4).map((skill) => (
+            {skills.slice(0, 3).map((skill) => (
               <span key={skill} className="skill-tag">
                 {skill}
               </span>
             ))}
-            {job.skills.length > 4 && (
+            {skills.length > 3 && (
               <span className="skill-tag bg-gray-100 text-gray-600">
-                +{job.skills.length - 4} more
+                +{skills.length - 3} more
               </span>
             )}
           </div>
@@ -65,7 +70,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, isRecommended = false }) => {
         {isRecommended && job.confidenceScore !== undefined && (
           <div className="mt-4">
             <div className="flex justify-between text-xs mb-1">
-              <span>Match Score</span>
+              <span>Match</span>
               <span className="font-semibold">{Math.round(job.confidenceScore * 100)}%</span>
             </div>
             <div className="confidence-bar">
@@ -81,10 +86,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, isRecommended = false }) => {
         )}
       </CardContent>
       <CardFooter className="pt-2">
-        <Button className="w-full gap-2">
-          Apply Now
-          <ExternalLink className="h-4 w-4" />
-        </Button>
+        <Button className="w-full">Apply Now</Button>
       </CardFooter>
     </Card>
   );

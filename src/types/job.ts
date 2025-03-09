@@ -1,23 +1,24 @@
 
 export interface Job {
   id?: string;
+  // Core fields for display
   title?: string;
   company?: string;
-  location?: string;
   description?: string;
-  skills?: string[];
-  postDate?: string;
   salary?: string;
+  experience?: string;
+  industry?: string;
+  skills?: string[];
   confidenceScore?: number;
   
   // Fields from the actual API response
+  "Company"?: string;
+  "Description"?: string;
+  "Industry"?: string;
+  "Job Experience Required"?: string;
+  "Job Salary"?: string;
   "Job Title"?: string;
   "Key Skills"?: string;
-  "Job Salary"?: string;
-  "Job Experience Required"?: string;
-  "Functional Area"?: string; 
-  "Industry"?: string;
-  "Role Category"?: string;
 }
 
 export interface Profile {
