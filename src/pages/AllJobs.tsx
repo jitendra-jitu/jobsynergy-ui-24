@@ -17,15 +17,18 @@ const AllJobs = () => {
   });
 
   const filteredJobs = jobs.filter((job: Job) => {
+    // Get values, handling both possible structures
     const title = job["Job Title"] || "";
-    const company = job["Company"] || job["Industry"] || "";
+    const company = job["Company"] || job.details?.Company || job["Industry"] || job.details?.Industry || "";
     const skills = job["Key Skills"] || "";
+    const description = job["Description"] || job.details?.Description || "";
     
     const searchLower = searchQuery.toLowerCase();
     return (
       title.toLowerCase().includes(searchLower) ||
       company.toLowerCase().includes(searchLower) ||
-      skills.toLowerCase().includes(searchLower)
+      skills.toLowerCase().includes(searchLower) ||
+      description.toLowerCase().includes(searchLower)
     );
   });
 
@@ -33,7 +36,7 @@ const AllJobs = () => {
     <div className="container mx-auto py-6 px-4">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-2 flex items-center">
-          <Briefcase className="mr-2 h-6 w-6 text-job-primary" />
+          <Briefcase className="mr-2 h-6 w-6 text-primary" />
           Available Jobs
         </h1>
       </div>
@@ -42,7 +45,7 @@ const AllJobs = () => {
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
         <Input
           className="pl-10"
-          placeholder="Search jobs..."
+          placeholder="Search jobs by title, company, or skills..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
@@ -70,7 +73,7 @@ const AllJobs = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredJobs.map((job: Job, index: number) => (
-            <JobCard key={index} job={{...job, id: index.toString()}} />
+            <JobCard key={job.id || index.toString()} job={{...job, id: job.id || index.toString()}} />
           ))}
         </div>
       )}

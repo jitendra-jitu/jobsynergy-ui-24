@@ -32,7 +32,13 @@ export async function fetchRecommendedJobs(): Promise<Job[]> {
       throw new Error("Failed to fetch recommended jobs");
     }
     
-    return await response.json();
+    // Assign IDs to each job for React keys
+    const jobs = await response.json();
+    return jobs.map((job: Job, index: number) => ({
+      ...job,
+      id: index.toString(),
+      confidenceScore: job.confidence
+    }));
   } catch (error) {
     console.error("Error fetching recommended jobs:", error);
     toast({
@@ -59,6 +65,19 @@ export function saveProfile(profile: Profile): void {
       description: "Failed to save profile. Please try again.",
       variant: "destructive",
     });
+  }
+}
+
+export function getProfile(): Profile | null {
+  try {
+    const profileData = localStorage.getItem("userProfile");
+    if (profileData) {
+      return JSON.parse(profileData);
+    }
+    return null;
+  } catch (error) {
+    console.error("Error retrieving profile:", error);
+    return null;
   }
 }
 

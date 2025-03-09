@@ -11,19 +11,29 @@ interface JobCardProps {
 }
 
 const JobCard: React.FC<JobCardProps> = ({ job, isRecommended = false }) => {
-  // Format display values from job object
-  const title = job.title || job["Job Title"] || "";
-  const company = job.company || job["Company"] || job["Industry"] || "";
-  const salary = job.salary || job["Job Salary"] || "";
-  const experience = job.experience || job["Job Experience Required"] || "";
-  const description = job.description || job["Description"] || "";
+  // Format display values from job object based on structure
+  const title = job["Job Title"] || (job.details && "Job Title" in job ? job["Job Title"] : "");
+  const company = 
+    job["Company"] || 
+    (job.details?.Company) || 
+    job["Industry"] || 
+    job.details?.Industry || 
+    "";
+  
+  const salary = job["Job Salary"] || job.details?.["Job Salary"] || "";
+  const experience = job["Job Experience Required"] || job.details?.["Job Experience Required"] || "";
+  const description = job["Description"] || job.details?.Description || "";
   
   // Parse skills
-  const skills = job.skills || 
-    (job["Key Skills"] ? job["Key Skills"].split('|').map(s => s.trim()) : []);
+  const skills = job["Key Skills"] ? 
+    job["Key Skills"].split('|').map(s => s.trim()) : 
+    [];
+
+  // Get confidence score
+  const confidenceScore = job.confidence || job.confidenceScore || 0;
 
   return (
-    <Card className="job-card h-full flex flex-col">
+    <Card className="h-full flex flex-col">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <div>
@@ -52,33 +62,33 @@ const JobCard: React.FC<JobCardProps> = ({ job, isRecommended = false }) => {
         {description && (
           <p className="text-sm text-gray-600 line-clamp-3 mb-3">{description}</p>
         )}
-        {skills && skills.length > 0 && (
-          <div className="flex flex-wrap mt-2">
+        {skills.length > 0 && (
+          <div className="flex flex-wrap mt-2 gap-1">
             {skills.slice(0, 3).map((skill) => (
-              <span key={skill} className="skill-tag">
+              <span key={skill} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
                 {skill}
               </span>
             ))}
             {skills.length > 3 && (
-              <span className="skill-tag bg-gray-100 text-gray-600">
+              <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
                 +{skills.length - 3} more
               </span>
             )}
           </div>
         )}
 
-        {isRecommended && job.confidenceScore !== undefined && (
+        {isRecommended && confidenceScore > 0 && (
           <div className="mt-4">
             <div className="flex justify-between text-xs mb-1">
               <span>Match</span>
-              <span className="font-semibold">{Math.round(job.confidenceScore * 100)}%</span>
+              <span className="font-semibold">{Math.round(confidenceScore * 100)}%</span>
             </div>
-            <div className="confidence-bar">
+            <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
               <div 
-                className="confidence-progress" 
+                className="h-full rounded-full" 
                 style={{ 
-                  width: `${Math.round(job.confidenceScore * 100)}%`,
-                  backgroundColor: getScoreColor(job.confidenceScore)
+                  width: `${Math.round(confidenceScore * 100)}%`,
+                  backgroundColor: getScoreColor(confidenceScore)
                 }}
               ></div>
             </div>

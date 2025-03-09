@@ -11,14 +11,25 @@ export interface Job {
   skills?: string[];
   confidenceScore?: number;
   
-  // Fields from the actual API response
+  // Fields from the API response
+  "Job Title"?: string;
   "Company"?: string;
   "Description"?: string;
   "Industry"?: string;
   "Job Experience Required"?: string;
   "Job Salary"?: string;
-  "Job Title"?: string;
   "Key Skills"?: string;
+  
+  // New fields from predict jobs API
+  confidence?: number;
+  details?: {
+    Company?: string;
+    Description?: string;
+    Industry?: string;
+    "Job Experience Required"?: string;
+    "Job Salary"?: string;
+    confidence?: number;
+  };
 }
 
 export interface Profile {

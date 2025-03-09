@@ -26,7 +26,7 @@ const RecommendedJobs = () => {
           Complete Your Profile First
         </h1>
         <p className="text-gray-600 mb-8 max-w-md mx-auto">
-          We need more information about your skills and experience to provide personalized job recommendations.
+          We need more information about your skills and experience to provide job recommendations.
         </p>
         <Button asChild>
           <Link to="/profile">Go to Profile</Link>
@@ -39,7 +39,7 @@ const RecommendedJobs = () => {
     <div className="container mx-auto py-8 px-4">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center">
-          <ThumbsUp className="mr-2 h-8 w-8 text-job-primary" />
+          <ThumbsUp className="mr-2 h-8 w-8 text-primary" />
           Recommended Jobs
         </h1>
         <p className="text-gray-600">
@@ -54,15 +54,7 @@ const RecommendedJobs = () => {
               <Skeleton className="h-6 w-3/4 mb-4" />
               <Skeleton className="h-4 w-1/2 mb-2" />
               <Skeleton className="h-4 w-1/3 mb-4" />
-              <Skeleton className="h-16 w-full mb-4" />
-              <div className="flex gap-2 mb-4">
-                <Skeleton className="h-6 w-16" />
-                <Skeleton className="h-6 w-16" />
-                <Skeleton className="h-6 w-16" />
-              </div>
-              <Skeleton className="h-4 w-full mb-2" />
-              <Skeleton className="h-2 w-full mb-4" />
-              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-12 w-full" />
             </div>
           ))}
         </div>
@@ -76,8 +68,7 @@ const RecommendedJobs = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {jobs.sort((a, b) => (b.confidenceScore || 0) - (a.confidenceScore || 0))
-            .slice(0, 10)
+          {jobs.sort((a, b) => (b.confidence || 0) - (a.confidence || 0))
             .map((job) => (
               <JobCard key={job.id} job={job} isRecommended={true} />
             ))}
