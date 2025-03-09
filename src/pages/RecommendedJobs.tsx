@@ -135,11 +135,9 @@ const RecommendedJobs = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {jobs
-            .sort((a, b) => (b.confidence || b.confidenceScore || 0) - (a.confidence || a.confidenceScore || 0))
-            .map((job) => (
-              <JobCard key={job.id} job={job} isRecommended={true} />
-            ))}
+          {jobs.map((job) => (
+            <JobCard key={job.id} job={job} isRecommended={true} />
+          ))}
         </div>
       )}
     </div>

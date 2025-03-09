@@ -1,7 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Profile } from "../types/job";
-import { v4 as uuidv4 } from "uuid";
 import { requestRecommendedJobs } from "@/services/api";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -50,8 +49,11 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
       console.log("Using job title:", mostRecentJob);
       console.log("Using skills:", profile.skills);
       
+      // Format skills as comma-separated string for the API
+      const skillsString = profile.skills.join(",");
+      
       // Make the API request with the user's job title and skills
-      await requestRecommendedJobs(mostRecentJob, profile.skills);
+      await requestRecommendedJobs(mostRecentJob, skillsString);
       
       // Invalidate the query to force a refetch
       queryClient.invalidateQueries({ queryKey: ["recommendedJobs"] });

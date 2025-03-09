@@ -1,79 +1,9 @@
-
 import { Job, Profile } from "../types/job";
 import { toast } from "@/hooks/use-toast";
 
 // Set the correct API endpoint
 const API_BASE_URL = "http://localhost:5000";
 const PREDICTION_ENDPOINT = "http://127.0.0.1:5000/predict";
-
-// Sample data to use when API is not available
-const SAMPLE_JOBS = [
-  {
-    "Job Title": "React Frontend Developer",
-    "Key Skills": "React| Redux| JavaScript",
-    "confidence": 1.0,
-    "details": {
-      "Company": "InnovateTech",
-      "Description": "Develop interactive and responsive UIs using React and Redux.",
-      "Industry": "IT-Software, Software Services",
-      "Job Experience Required": "3 - 6 yrs",
-      "Job Salary": "7.5 LPA",
-      "confidence": 1.0
-    }
-  },
-  {
-    "Job Title": "Vue.js Developer",
-    "Key Skills": "Vue.js| JavaScript| UI Development",
-    "confidence": 0.5987082337374124,
-    "details": {
-      "Company": "Frontend Masters",
-      "Description": "Build modern web applications using Vue.js and TypeScript.",
-      "Industry": "Web Development",
-      "Job Experience Required": "3 - 6 yrs",
-      "Job Salary": "7.1 LPA",
-      "confidence": 0.5987082337374124
-    }
-  },
-  {
-    "Job Title": "Frontend Developer",
-    "Key Skills": "React.js| JavaScript| UI Development",
-    "confidence": 0.5932752021550755,
-    "details": {
-      "Company": "Web Creators Inc.",
-      "Description": "Design and develop responsive UI components with React.js.",
-      "Industry": "IT-Software, Software Services",
-      "Job Experience Required": "3 - 6 yrs",
-      "Job Salary": "5.8 LPA",
-      "confidence": 0.5932752021550755
-    }
-  },
-  {
-    "Job Title": "Java Backend Developer",
-    "Key Skills": "Java| Spring Boot| Microservices",
-    "confidence": 0.5226588978102378,
-    "details": {
-      "Company": "InnovateTech",
-      "Description": "Develop and maintain backend services using Java and Spring Boot.",
-      "Industry": "IT-Software, Software Services",
-      "Job Experience Required": "2 - 5 yrs",
-      "Job Salary": "6.2 LPA",
-      "confidence": 0.5226588978102378
-    }
-  },
-  {
-    "Job Title": "React Developer",
-    "Key Skills": "React| Next.js| Tailwind CSS",
-    "confidence": 0.3571321286549576,
-    "details": {
-      "Company": "Frontend Gurus",
-      "Description": "Develop fast and interactive web applications using React and Next.js.",
-      "Industry": "Web Development",
-      "Job Experience Required": "3 - 5 yrs",
-      "Job Salary": "6.7 LPA",
-      "confidence": 0.3571321286549576
-    }
-  }
-];
 
 export async function fetchSampleJobs(): Promise<Job[]> {
   try {
@@ -111,13 +41,9 @@ export async function fetchRecommendedJobs(skills?: string[]): Promise<Job[]> {
       }));
     }
     
-    // If no cached jobs, return sample data
-    console.log("No cached recommended jobs found, using sample data");
-    return SAMPLE_JOBS.map((job, index) => ({
-      ...job,
-      id: index.toString(),
-      confidenceScore: job.confidence
-    }));
+    // If no cached jobs, return empty array (forcing a refresh)
+    console.log("No cached recommended jobs found");
+    return [];
   } catch (error) {
     console.error("Error fetching recommended jobs:", error);
     toast({
@@ -129,23 +55,20 @@ export async function fetchRecommendedJobs(skills?: string[]): Promise<Job[]> {
   }
 }
 
-export async function requestRecommendedJobs(jobTitle: string, skills: string[]): Promise<Job[]> {
+export async function requestRecommendedJobs(jobTitle: string, skillsString: string): Promise<Job[]> {
   try {
-    if (!jobTitle || !skills || skills.length === 0) {
+    if (!jobTitle || !skillsString) {
       throw new Error("Job title and skills are required for recommendations");
     }
     
-    // Format skills as a pipe-separated string
-    const skillsString = skills.join("|");
+    console.log("POST request to prediction endpoint:", PREDICTION_ENDPOINT);
+    console.log("POST payload:", { job_title: jobTitle, key_skills: skillsString });
     
     // Prepare the request payload with the correct format
     const payload = {
       job_title: jobTitle,
       key_skills: skillsString
     };
-    
-    console.log("POST request to prediction endpoint:", PREDICTION_ENDPOINT);
-    console.log("POST payload:", payload);
     
     // Try to make an actual API call to the prediction endpoint
     try {
@@ -178,19 +101,8 @@ export async function requestRecommendedJobs(jobTitle: string, skills: string[])
       
       return formattedJobs;
     } catch (apiError) {
-      console.error("API call failed, using sample data instead:", apiError);
-      
-      // If the API call fails, fall back to the sample data
-      const fallbackData = SAMPLE_JOBS.map((job, index) => ({
-        ...job,
-        id: index.toString(),
-        confidenceScore: job.confidence
-      }));
-      
-      // Cache the fallback data
-      localStorage.setItem("recommendedJobs", JSON.stringify(fallbackData));
-      
-      return fallbackData;
+      console.error("API call failed:", apiError);
+      throw apiError; // Propagate error to caller
     }
   } catch (error) {
     console.error("Error requesting recommended jobs:", error);
@@ -199,11 +111,10 @@ export async function requestRecommendedJobs(jobTitle: string, skills: string[])
       description: "Failed to get job recommendations. Please try again.",
       variant: "destructive",
     });
-    return [];
+    throw error;
   }
 }
 
-// Local storage only functions for profile
 export function saveProfile(profile: Profile): void {
   try {
     localStorage.setItem("userProfile", JSON.stringify(profile));
