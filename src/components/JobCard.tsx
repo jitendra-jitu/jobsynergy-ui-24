@@ -17,14 +17,18 @@ const JobCard: React.FC<JobCardProps> = ({ job, isRecommended = false }) => {
         <div className="flex justify-between items-start">
           <div>
             <h3 className="text-lg font-semibold text-gray-900">{job.title}</h3>
-            <div className="flex items-center mt-1 text-sm text-gray-600">
-              <Building className="h-4 w-4 mr-1" />
-              <span>{job.company}</span>
-            </div>
-            <div className="flex items-center mt-1 text-sm text-gray-600">
-              <MapPin className="h-4 w-4 mr-1" />
-              <span>{job.location}</span>
-            </div>
+            {job.company && (
+              <div className="flex items-center mt-1 text-sm text-gray-600">
+                <Building className="h-4 w-4 mr-1" />
+                <span>{job.company}</span>
+              </div>
+            )}
+            {job.location && (
+              <div className="flex items-center mt-1 text-sm text-gray-600">
+                <MapPin className="h-4 w-4 mr-1" />
+                <span>{job.location}</span>
+              </div>
+            )}
             {job.postDate && (
               <div className="flex items-center mt-1 text-sm text-gray-600">
                 <Calendar className="h-4 w-4 mr-1" />
@@ -40,19 +44,23 @@ const JobCard: React.FC<JobCardProps> = ({ job, isRecommended = false }) => {
         </div>
       </CardHeader>
       <CardContent className="flex-grow">
-        <p className="text-sm text-gray-600 line-clamp-3 mb-3">{job.description}</p>
-        <div className="flex flex-wrap mt-2">
-          {job.skills.slice(0, 4).map((skill) => (
-            <span key={skill} className="skill-tag">
-              {skill}
-            </span>
-          ))}
-          {job.skills.length > 4 && (
-            <span className="skill-tag bg-gray-100 text-gray-600">
-              +{job.skills.length - 4} more
-            </span>
-          )}
-        </div>
+        {job.description && (
+          <p className="text-sm text-gray-600 line-clamp-3 mb-3">{job.description}</p>
+        )}
+        {job.skills && job.skills.length > 0 && (
+          <div className="flex flex-wrap mt-2">
+            {job.skills.slice(0, 4).map((skill) => (
+              <span key={skill} className="skill-tag">
+                {skill}
+              </span>
+            ))}
+            {job.skills.length > 4 && (
+              <span className="skill-tag bg-gray-100 text-gray-600">
+                +{job.skills.length - 4} more
+              </span>
+            )}
+          </div>
+        )}
 
         {isRecommended && job.confidenceScore !== undefined && (
           <div className="mt-4">

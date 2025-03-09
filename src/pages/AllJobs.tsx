@@ -1,27 +1,40 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchSampleJobs } from "@/services/api";
 import JobCard from "@/components/JobCard";
 import { Briefcase, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Job } from "@/types/job";
 
 const AllJobs = () => {
   const [searchQuery, setSearchQuery] = useState("");
   
-  const { data: jobs = [], isLoading, error } = useQuery({
+  const { data: rawJobs = [], isLoading, error } = useQuery({
     queryKey: ["sampleJobs"],
     queryFn: fetchSampleJobs,
   });
 
+  // Format jobs to work with our JobCard component
+  const jobs: Job[] = rawJobs.map((job: any, index) => ({
+    id: index.toString(),
+    title: job["Job Title"] || "",
+    company: job["Industry"] || "",
+    location: job["Functional Area"] || "",
+    description: job["Role Category"] || "",
+    skills: job["Key Skills"] ? job["Key Skills"].split('|').map((s: string) => s.trim()) : [],
+    postDate: job["Job Experience Required"] || "",
+    salary: job["Job Salary"] || "",
+  }));
+
   const filteredJobs = jobs.filter(
     (job) =>
-      job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      job.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      job.skills.some((skill) =>
+      (job.title && job.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (job.company && job.company.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (job.skills && job.skills.some((skill) =>
         skill.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      ))
   );
 
   return (
