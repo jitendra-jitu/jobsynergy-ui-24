@@ -40,13 +40,18 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     if (!isProfileComplete) return;
     
     try {
+      console.log("Refreshing recommendations with profile:", profile);
+      
       // Get the most recent job title from experience or use a default
       const mostRecentJob = profile.experience.length > 0 
         ? profile.experience[0].jobTitle 
-        : "Entry Level";
+        : "software developer";
       
       // Get the user's skills from their profile
       const userSkills = profile.skills;
+      
+      console.log("Using job title:", mostRecentJob);
+      console.log("Using skills:", userSkills);
       
       // Request job recommendations based on the current profile data
       await requestRecommendedJobs(mostRecentJob, userSkills);

@@ -2,7 +2,9 @@
 import { Job, Profile } from "../types/job";
 import { toast } from "@/hooks/use-toast";
 
+// Set the correct API endpoint
 const API_BASE_URL = "http://localhost:5000";
+const PREDICTION_ENDPOINT = "http://127.0.0.1:5000/predict";
 
 // Sample data to use when API is not available
 const SAMPLE_JOBS = [
@@ -95,8 +97,10 @@ export async function fetchSampleJobs(): Promise<Job[]> {
 
 export async function fetchRecommendedJobs(skills?: string[]): Promise<Job[]> {
   try {
-    console.log("Using sample recommended jobs data instead of API call");
-    console.log("Skills to recommend jobs for:", skills);
+    console.log("Fetching recommended jobs with skills:", skills);
+    
+    // For now, we'll use the sample data since the backend may not be available
+    // In a real implementation, we would fetch from the API endpoint
     
     // Add IDs for React keys
     return SAMPLE_JOBS.map((job, index) => ({
@@ -128,27 +132,42 @@ export async function requestRecommendedJobs(jobTitle: string, skills: string[])
     
     console.log("POST payload:", payload);
     
-    // In a real implementation, this would make an actual API call
-    // const response = await fetch(`${API_BASE_URL}/recommend-jobs`, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify(payload)
-    // });
-    // 
-    // if (!response.ok) {
-    //   throw new Error("Failed to get job recommendations");
-    // }
-    // 
-    // return await response.json();
-    
-    // For now, simulate by returning the sample data
-    return SAMPLE_JOBS.map((job, index) => ({
-      ...job,
-      id: index.toString(),
-      confidenceScore: job.confidence
-    }));
+    // Try to make an actual API call to the prediction endpoint
+    try {
+      const response = await fetch(PREDICTION_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+      
+      if (!response.ok) {
+        console.error("Error response from prediction API:", response.status);
+        throw new Error("Failed to get job recommendations");
+      }
+      
+      const data = await response.json();
+      console.log("Received prediction data:", data);
+      
+      // Format the response data to match our Job structure
+      return Array.isArray(data) ? data.map((job, index) => ({
+        ...job,
+        id: index.toString(),
+        confidenceScore: job.confidence || 0
+      })) : [];
+      
+    } catch (apiError) {
+      console.error("API call failed, using sample data instead:", apiError);
+      
+      // If the API call fails, fall back to the sample data
+      return SAMPLE_JOBS.map((job, index) => ({
+        ...job,
+        id: index.toString(),
+        confidenceScore: job.confidence
+      }));
+    }
   } catch (error) {
     console.error("Error requesting recommended jobs:", error);
     toast({

@@ -10,20 +10,26 @@ import { useProfile } from "@/contexts/ProfileContext";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const RecommendedJobs = () => {
-  const { profile, isProfileComplete } = useProfile();
+  const { profile, isProfileComplete, refreshRecommendations } = useProfile();
   const queryClient = useQueryClient();
   
   // Force refetch when component mounts or profile changes
   useEffect(() => {
-    if (isProfileComplete) {
-      queryClient.invalidateQueries({ queryKey: ["recommendedJobs"] });
-    }
-  }, [profile.skills, isProfileComplete, queryClient]);
+    const refreshJobs = async () => {
+      if (isProfileComplete) {
+        console.log("Component mounted or profile changed - refreshing recommendations");
+        await refreshRecommendations();
+      }
+    };
+    
+    refreshJobs();
+  }, [profile.skills, isProfileComplete, queryClient, refreshRecommendations]);
 
   const { data: jobs = [], isLoading, error } = useQuery({
     queryKey: ["recommendedJobs", profile.skills],
     queryFn: () => fetchRecommendedJobs(profile.skills),
     enabled: isProfileComplete,
+    staleTime: 0, // Always consider data stale to force refetch
   });
 
   if (!isProfileComplete) {
@@ -45,13 +51,18 @@ const RecommendedJobs = () => {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">
-          Recommended Jobs
-        </h1>
-        <p className="text-gray-600">
-          Based on your skills and profile
-        </p>
+      <div className="mb-6 flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            Recommended Jobs
+          </h1>
+          <p className="text-gray-600">
+            Based on your skills and profile
+          </p>
+        </div>
+        <Button onClick={refreshRecommendations} variant="outline" size="sm">
+          Refresh Recommendations
+        </Button>
       </div>
 
       {isLoading ? (
