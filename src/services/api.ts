@@ -1,3 +1,4 @@
+
 import { Job, Profile } from "../types/job";
 import { toast } from "@/hooks/use-toast";
 
@@ -119,17 +120,30 @@ export async function requestRecommendedJobs(jobTitle: string, skills: string[])
   try {
     console.log("Requesting recommended jobs with:", { jobTitle, skills });
     
-    // Prepare the request payload
+    // Prepare the request payload with the correct format
     const payload = {
       job_title: jobTitle,
       key_skills: skills.join("|")
     };
     
-    // In a real implementation, this would make an actual API call
-    // For now, we'll simulate by using the sample data
     console.log("POST payload:", payload);
     
-    // Return the sample data as if it was from the API
+    // In a real implementation, this would make an actual API call
+    // const response = await fetch(`${API_BASE_URL}/recommend-jobs`, {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify(payload)
+    // });
+    // 
+    // if (!response.ok) {
+    //   throw new Error("Failed to get job recommendations");
+    // }
+    // 
+    // return await response.json();
+    
+    // For now, simulate by returning the sample data
     return SAMPLE_JOBS.map((job, index) => ({
       ...job,
       id: index.toString(),

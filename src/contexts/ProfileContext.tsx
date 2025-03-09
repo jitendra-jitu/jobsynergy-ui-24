@@ -40,13 +40,16 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     if (!isProfileComplete) return;
     
     try {
-      // Get the most recent job title from experience if available
+      // Get the most recent job title from experience or use a default
       const mostRecentJob = profile.experience.length > 0 
         ? profile.experience[0].jobTitle 
         : "Entry Level";
       
-      // Request job recommendations based on profile
-      await requestRecommendedJobs(mostRecentJob, profile.skills);
+      // Get the user's skills from their profile
+      const userSkills = profile.skills;
+      
+      // Request job recommendations based on the current profile data
+      await requestRecommendedJobs(mostRecentJob, userSkills);
       
       // Invalidate the query to force a refetch
       queryClient.invalidateQueries({ queryKey: ["recommendedJobs"] });
